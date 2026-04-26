@@ -16,7 +16,9 @@ venv/
 .env
 
 # Model files (optional - include ONLY if needed in production)
+# Model files
 *.pkl
+!LinearRegressionModel.pkl
 *.joblib
 
 # VS Code
