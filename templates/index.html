@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Car Price Predictor</title>
+
+    <!-- Correct CSS path -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+
+</head>
+
+<body>
+
+<div class="container">
+    <div class="row">
+        <div class="card mt-5 w-100">
+            <div class="card-header text-center">
+                <h1>Car Price Predictor</h1>
+            </div>
+
+            <div class="card-body">
+
+                <h5 class="text-center">Enter details to predict car price</h5>
+
+                <form onsubmit="return false;">
+
+                    <!-- Company -->
+                    <div class="form-group text-center">
+                        <label><b>Select Company</b></label>
+                        <select class="form-control" id="company" name="company"
+                                onchange="load_car_models('company','car_models')" required>
+                            {% for company in companies %}
+                            <option value="{{ company }}">{{ company }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Model -->
+                    <div class="form-group text-center">
+                        <label><b>Select Model</b></label>
+                        <select class="form-control" id="car_models" name="car_models" required></select>
+                    </div>
+
+                    <!-- Year -->
+                    <div class="form-group text-center">
+                        <label><b>Select Year</b></label>
+                        <select class="form-control" id="year" name="year" required>
+                            {% for year in years %}
+                            <option value="{{ year }}">{{ year }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Fuel -->
+                    <div class="form-group text-center">
+                        <label><b>Fuel Type</b></label>
+                        <select class="form-control" id="fuel_type" name="fuel_type" required>
+                            {% for fuel in fuel_types %}
+                            <option value="{{ fuel }}">{{ fuel }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- KM -->
+                    <div class="form-group text-center">
+                        <label><b>Kilometers Driven</b></label>
+                        <input type="number" class="form-control"
+                               id="kilo_driven" name="kilo_driven"
+                               placeholder="Enter KM driven" required>
+                    </div>
+
+                    <!-- Button -->
+                    <div class="form-group text-center">
+                        <button type="button"
+                                class="btn btn-primary form-control"
+                                onclick="send_data()">Predict Price</button>
+                    </div>
+
+                </form>
+
+                <h4 class="text-center mt-3">
+                    <span id="prediction"></span>
+                </h4>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+function load_car_models(company_id, car_model_id)
+{
+    var company = document.getElementById(company_id);
+    var car_model = document.getElementById(car_model_id);
+
+    car_model.innerHTML = "";
+
+    {% for company in companies %}
+        if (company.value == "{{ company }}")
+        {
+            {% for model in car_models %}
+                {% if company in model %}
+                    var option = document.createElement("option");
+                    option.value = "{{ model }}";
+                    option.innerHTML = "{{ model }}";
+                    car_model.appendChild(option);
+                {% endif %}
+            {% endfor %}
+        }
+    {% endfor %}
+}
+
+function send_data()
+{
+    var form = document.querySelector('form');
+    var fd = new FormData(form);
+
+    var xhr = new XMLHttpRequest();
+
+    xhr.open('POST', '/predict', true);
+
+    document.getElementById('prediction').innerHTML = "Predicting...";
+
+    xhr.onreadystatechange = function()
+    {
+        if (xhr.readyState == XMLHttpRequest.DONE)
+        {
+            document.getElementById('prediction').innerHTML =
+                "Estimated Price: ₹ " + xhr.responseText;
+        }
+    };
+
+    xhr.send(fd);
+}
+
+</script>
+
+</body>
+</html>
